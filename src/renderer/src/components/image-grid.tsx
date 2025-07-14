@@ -1,19 +1,11 @@
 "use client"
 
 import { ImageCard } from "./image-card"
+import { useAppStore } from "@/lib/store"
 
-interface Image {
-  id: number
-  src: string
-  title: string
-}
+export function ImageGrid() {
+  const { images, searchQuery } = useAppStore()
 
-interface ImageGridProps {
-  images: Image[]
-  searchQuery: string
-}
-
-export function ImageGrid({ images, searchQuery }: ImageGridProps) {
   const filteredImages = images.filter((img) => img.title.toLowerCase().includes(searchQuery.toLowerCase()))
 
   return (

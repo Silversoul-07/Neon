@@ -1,42 +1,37 @@
 "use client"
 
-import { useState } from "react"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { useEffect } from "react"
 import { AppSidebar } from "./components/app-sidebar"
 import { AppHeader } from "./components/app-header"
 import { ImageGrid } from "./components/image-grid"
+import { ImageViewer } from "./components/image-viewer"
+import { ContextMenuProvider } from "./components/context-menu"
+import { useAppStore } from "./lib/store"
+import { SidebarProvider } from "./components/ui/sidebar" // adjust path if needed
 
 const DesktopApp = () => {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [darkMode, setDarkMode] = useState(false)
+  const { darkMode, selectedImage } = useAppStore()
 
-  const images = Array.from({ length: 20 }, (_, i) => ({
-    id: i + 1,
-    src: `https://picsum.photos/300/200?random=${i + 1}`,
-    title: `Image ${i + 1}`,
-  }))
-
-  const toggleTheme = () => {
-    setDarkMode(!darkMode)
-  }
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+  }, [darkMode])
 
   return (
-    <div className={darkMode ? "dark" : ""}>
-      <SidebarProvider>
+    <SidebarProvider>
+      <ContextMenuProvider>
         <div className="flex h-screen w-full bg-background">
           <AppSidebar />
-          <SidebarInset>
-            <AppHeader
-              searchQuery={searchQuery}
-              onSearchChange={setSearchQuery}
-              darkMode={darkMode}
-              onToggleTheme={toggleTheme}
-            />
-            <ImageGrid images={images} searchQuery={searchQuery} />
-          </SidebarInset>
+          <div className="flex-1 flex flex-col">
+            {!selectedImage && <AppHeader />}
+            {selectedImage ? <ImageViewer /> : <ImageGrid />}
+          </div>
         </div>
-      </SidebarProvider>
-    </div>
+      </ContextMenuProvider>
+    </SidebarProvider>
   )
 }
 
