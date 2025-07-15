@@ -1,11 +1,24 @@
 "use client"
 
-import { X, Heart, Share, Download, Info, ChevronLeft, ChevronRight } from "lucide-react"
+import type React from "react"
+
+import { X, Heart, Share, Download, Info, ChevronLeft, ChevronRight, Tag, Edit, Trash2 } from "lucide-react"
 import { useAppStore } from "@/lib/store"
+import { useContextMenu } from "./context-menu"
+import { MetadataSidebar } from "./metadata-sidebar"
+import { RecommendationsSection } from "./recommendations-section"
 
 export function ImageViewer() {
-  const { selectedImage, setSelectedImage, images, metadataSidebarCollapsed, setMetadataSidebarCollapsed } =
-    useAppStore()
+  const {
+    selectedImage,
+    setSelectedImage,
+    images,
+    metadataSidebarCollapsed,
+    setMetadataSidebarCollapsed,
+    setShowTaggingDialog,
+  } = useAppStore()
+
+  const { showContextMenu } = useContextMenu()
 
   if (!selectedImage) return null
 
@@ -25,6 +38,18 @@ export function ImageViewer() {
     }
   }
 
+  const handleImageContextMenu = (event: React.MouseEvent) => {
+    showContextMenu(event, [
+      { label: "Add to Favourites", icon: Heart, onClick: () => console.log("Add to favourites") },
+      { label: "Manage Tags", icon: Tag, onClick: () => setShowTaggingDialog(true) },
+      { label: "Share", icon: Share, onClick: () => console.log("Share") },
+      { label: "Download", icon: Download, onClick: () => console.log("Download") },
+      { separator: true },
+      { label: "Edit", icon: Edit, onClick: () => console.log("Edit") },
+      { label: "Delete", icon: Trash2, onClick: () => console.log("Delete") },
+    ])
+  }
+
   return (
     <div className="flex-1 flex bg-black relative">
       {/* Main Image Area */}
@@ -32,14 +57,15 @@ export function ImageViewer() {
         <img
           src={selectedImage.src || "/placeholder.svg"}
           alt={selectedImage.title}
-          className="max-w-full max-h-full object-contain"
+          className="max-w-full max-h-full object-contain cursor-pointer"
+          onContextMenu={handleImageContextMenu}
         />
 
         {/* Navigation Arrows */}
         {canGoPrev && (
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 glass-strong dark:glass-strong-dark rounded-full text-white transition-all hover:scale-110"
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -48,7 +74,7 @@ export function ImageViewer() {
         {canGoNext && (
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 glass-strong dark:glass-strong-dark rounded-full text-white transition-all hover:scale-110"
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -59,75 +85,63 @@ export function ImageViewer() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setSelectedImage(null)}
-              className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+              className="p-3 glass-strong dark:glass-strong-dark rounded-full text-white transition-all hover:scale-110"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <button className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors">
-              <Heart className="w-5 h-5" />
-            </button>
-            <button className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors">
-              <Share className="w-5 h-5" />
-            </button>
-            <button className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors">
-              <Download className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setMetadataSidebarCollapsed(!metadataSidebarCollapsed)}
-              className="p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-            >
-              <Info className="w-5 h-5" />
-            </button>
+          <div className="glass-strong dark:glass-strong-dark rounded-full p-2">
+            <div className="flex items-center gap-2">
+              <button className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
+                <Heart className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setShowTaggingDialog(true)}
+                className="p-2 hover:bg-white/10 rounded-full text-white transition-colors"
+              >
+                <Tag className="w-5 h-5" />
+              </button>
+              <button className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
+                <Share className="w-5 h-5" />
+              </button>
+              <button className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
+                <Download className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => setMetadataSidebarCollapsed(!metadataSidebarCollapsed)}
+                className="p-2 hover:bg-white/10 rounded-full text-white transition-colors"
+              >
+                <Info className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Image Info Overlay */}
+        <div className="absolute bottom-20 left-4">
+          <div className="glass-strong dark:glass-strong-dark rounded-xl p-4 text-white max-w-md">
+            <h2 className="text-lg font-semibold mb-1">{selectedImage.title}</h2>
+            <p className="text-sm text-white/80 mb-2">{selectedImage.shortNote}</p>
+            <div className="flex flex-wrap gap-1">
+              {selectedImage.tags.slice(0, 3).map((tag) => (
+                <span key={tag} className="px-2 py-1 bg-white/20 rounded-md text-xs">
+                  {tag}
+                </span>
+              ))}
+              {selectedImage.tags.length > 3 && (
+                <span className="px-2 py-1 bg-white/20 rounded-md text-xs">+{selectedImage.tags.length - 3} more</span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Recommendations */}
+        <RecommendationsSection />
       </div>
 
       {/* Metadata Sidebar */}
-      {!metadataSidebarCollapsed && (
-        <div className="w-80 bg-background border-l border-border p-4 overflow-y-auto">
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold text-lg mb-2">{selectedImage.title}</h3>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">File Size</label>
-                <p className="text-sm">{selectedImage.size}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Type</label>
-                <p className="text-sm">{selectedImage.type}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Dimensions</label>
-                <p className="text-sm">{selectedImage.dimensions}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Date Created</label>
-                <p className="text-sm">{selectedImage.dateCreated}</p>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium text-muted-foreground">Tags</label>
-                <div className="flex flex-wrap gap-1 mt-1">
-                  {selectedImage.tags.map((tag) => (
-                    <span key={tag} className="px-2 py-1 bg-muted rounded-md text-xs">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {!metadataSidebarCollapsed && <MetadataSidebar />}
     </div>
   )
 }
