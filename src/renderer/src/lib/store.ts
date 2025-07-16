@@ -17,7 +17,10 @@ interface Image {
   colorSpace: string
   tags: string[]
   thumbnail: string
+  aspectRatio: number
 }
+
+type LayoutType = "grid" | "waterfall"
 
 interface AppState {
   // UI State
@@ -26,6 +29,7 @@ interface AppState {
   metadataSidebarCollapsed: boolean
   sidebarWidth: number
   showTaggingDialog: boolean
+  layoutType: LayoutType
 
   // Search & Filter
   searchQuery: string
@@ -45,7 +49,9 @@ interface AppState {
   setTagSearchQuery: (query: string) => void
   setSelectedImage: (image: Image | null) => void
   setShowTaggingDialog: (show: boolean) => void
+  setLayoutType: (layout: LayoutType) => void
   toggleTheme: () => void
+  toggleLayout: () => void
   updateImageMetadata: (id: number, updates: Partial<Image>) => void
   addTagToImage: (imageId: number, tag: string) => void
   removeTagFromImage: (imageId: number, tag: string) => void
@@ -67,22 +73,26 @@ const generateMockImages = (): Image[] => {
     "sunset",
   ]
 
-  return Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    src: `https://picsum.photos/800/600?random=${i + 1}`,
-    thumbnail: `https://picsum.photos/200/150?random=${i + 1}`,
-    title: `Image ${i + 1}`,
-    shortNote: `Beautiful capture from my collection #${i + 1}`,
-    source: `Camera ${Math.floor(Math.random() * 3) + 1}`,
-    size: `${Math.floor(Math.random() * 5000 + 1000)} KB`,
-    type: ["JPEG", "PNG", "RAW"][Math.floor(Math.random() * 3)],
-    dateCreated: new Date(Date.now() - Math.random() * 10000000000).toLocaleDateString(),
-    dateModified: new Date(Date.now() - Math.random() * 1000000000).toLocaleDateString(),
-    dimensions: `${800 + Math.floor(Math.random() * 400)}x${600 + Math.floor(Math.random() * 300)}`,
-    resolution: `${72 + Math.floor(Math.random() * 228)} DPI`,
-    colorSpace: ["sRGB", "Adobe RGB", "ProPhoto RGB"][Math.floor(Math.random() * 3)],
-    tags: mockTags.slice(0, Math.floor(Math.random() * 4) + 1),
-  }))
+  return Array.from({ length: 50 }, (_, i) => {
+    const aspectRatio = 0.6 + Math.random() * 0.8 // Random aspect ratio between 0.6 and 1.4
+    return {
+      id: i + 1,
+      src: `https://picsum.photos/800/${Math.floor(800 / aspectRatio)}?random=${i + 1}`,
+      thumbnail: `https://picsum.photos/300/${Math.floor(300 / aspectRatio)}?random=${i + 1}`,
+      title: `Image ${i + 1}`,
+      shortNote: `Beautiful capture from my collection #${i + 1}`,
+      source: `Camera ${Math.floor(Math.random() * 3) + 1}`,
+      size: `${Math.floor(Math.random() * 5000 + 1000)} KB`,
+      type: ["JPEG", "PNG", "RAW"][Math.floor(Math.random() * 3)],
+      dateCreated: new Date(Date.now() - Math.random() * 10000000000).toLocaleDateString(),
+      dateModified: new Date(Date.now() - Math.random() * 1000000000).toLocaleDateString(),
+      dimensions: `${800 + Math.floor(Math.random() * 400)}x${600 + Math.floor(Math.random() * 300)}`,
+      resolution: `${72 + Math.floor(Math.random() * 228)} DPI`,
+      colorSpace: ["sRGB", "Adobe RGB", "ProPhoto RGB"][Math.floor(Math.random() * 3)],
+      tags: mockTags.slice(0, Math.floor(Math.random() * 4) + 1),
+      aspectRatio,
+    }
+  })
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -92,6 +102,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   metadataSidebarCollapsed: true,
   sidebarWidth: 280,
   showTaggingDialog: false,
+  layoutType: "grid",
   searchQuery: "",
   tagSearchQuery: "",
   images: generateMockImages(),
@@ -123,7 +134,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   setTagSearchQuery: (tagSearchQuery) => set({ tagSearchQuery }),
   setSelectedImage: (selectedImage) => set({ selectedImage }),
   setShowTaggingDialog: (showTaggingDialog) => set({ showTaggingDialog }),
+  setLayoutType: (layoutType) => set({ layoutType }),
   toggleTheme: () => set((state) => ({ darkMode: !state.darkMode })),
+  toggleLayout: () => set((state) => ({ layoutType: state.layoutType === "grid" ? "waterfall" : "grid" })),
 
   updateImageMetadata: (id, updates) =>
     set((state) => ({

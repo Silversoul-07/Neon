@@ -11,16 +11,20 @@ export function AppSidebar() {
 
   return (
     <ResizableSidebar>
-      <div className="flex flex-col h-full glass-subtle dark:glass-subtle-dark">
+      <div className="flex flex-col h-full bg-sidebar">
         {/* Header */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-sidebar-border">
           <div className="flex items-center justify-between">
-            {!sidebarCollapsed && <h1 className="text-lg font-semibold">Gallery</h1>}
+            {!sidebarCollapsed && <h1 className="text-lg font-semibold text-sidebar-foreground">Gallery</h1>}
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors ml-auto"
+              className="p-2 hover:bg-sidebar-accent rounded-lg transition-colors ml-auto"
             >
-              {sidebarCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {sidebarCollapsed ? (
+                <ChevronRight className="w-4 h-4 text-sidebar-foreground" />
+              ) : (
+                <ChevronLeft className="w-4 h-4 text-sidebar-foreground" />
+              )}
             </button>
           </div>
         </div>

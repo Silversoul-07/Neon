@@ -51,90 +51,76 @@ export function ImageViewer() {
   }
 
   return (
-    <div className="flex-1 flex bg-black relative">
+    <div className="flex-1 flex bg-background relative overflow-hidden">
       {/* Main Image Area */}
-      <div className="flex-1 flex items-center justify-center relative">
-        <img
-          src={selectedImage.src || "/placeholder.svg"}
-          alt={selectedImage.title}
-          className="max-w-full max-h-full object-contain cursor-pointer"
-          onContextMenu={handleImageContextMenu}
-        />
+      <div className="flex-1 flex items-center justify-center relative p-8 bg-muted/20">
+        <div className="relative max-w-full max-h-full">
+          <img
+            src={selectedImage.src || "/placeholder.svg"}
+            alt={selectedImage.title}
+            className="max-w-full max-h-full object-contain cursor-pointer rounded-lg shadow-lg"
+            onContextMenu={handleImageContextMenu}
+          />
+        </div>
 
         {/* Navigation Arrows */}
         {canGoPrev && (
           <button
             onClick={goToPrevious}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 glass-strong dark:glass-strong-dark rounded-full text-white transition-all hover:scale-110"
+            className="absolute left-8 top-1/2 -translate-y-1/2 p-3 bg-background border border-border rounded-full hover:bg-accent transition-colors shadow-lg"
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6 text-foreground" />
           </button>
         )}
 
         {canGoNext && (
           <button
             onClick={goToNext}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 glass-strong dark:glass-strong-dark rounded-full text-white transition-all hover:scale-110"
+            className="absolute right-8 top-1/2 -translate-y-1/2 p-3 bg-background border border-border rounded-full hover:bg-accent transition-colors shadow-lg"
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-6 h-6 text-foreground" />
           </button>
         )}
 
         {/* Top Controls */}
-        <div className="absolute top-4 left-4 right-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
+        <div className="absolute top-6 left-6 right-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setSelectedImage(null)}
-              className="p-3 glass-strong dark:glass-strong-dark rounded-full text-white transition-all hover:scale-110"
+              className="p-2 bg-background border border-border rounded-lg hover:bg-accent transition-colors shadow-sm"
             >
-              <X className="w-5 h-5" />
+              <X className="w-5 h-5 text-foreground" />
             </button>
           </div>
 
-          <div className="glass-strong dark:glass-strong-dark rounded-full p-2">
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
-                <Heart className="w-5 h-5" />
+          <div className="bg-background border border-border rounded-lg p-1 shadow-sm">
+            <div className="flex items-center gap-1">
+              <button className="p-2 hover:bg-accent rounded-md transition-colors">
+                <Heart className="w-5 h-5 text-muted-foreground" />
               </button>
               <button
                 onClick={() => setShowTaggingDialog(true)}
-                className="p-2 hover:bg-white/10 rounded-full text-white transition-colors"
+                className="p-2 hover:bg-accent rounded-md transition-colors"
               >
-                <Tag className="w-5 h-5" />
+                <Tag className="w-5 h-5 text-muted-foreground" />
               </button>
-              <button className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
-                <Share className="w-5 h-5" />
+              <button className="p-2 hover:bg-accent rounded-md transition-colors">
+                <Share className="w-5 h-5 text-muted-foreground" />
               </button>
-              <button className="p-2 hover:bg-white/10 rounded-full text-white transition-colors">
-                <Download className="w-5 h-5" />
+              <button className="p-2 hover:bg-accent rounded-md transition-colors">
+                <Download className="w-5 h-5 text-muted-foreground" />
               </button>
               <button
                 onClick={() => setMetadataSidebarCollapsed(!metadataSidebarCollapsed)}
-                className="p-2 hover:bg-white/10 rounded-full text-white transition-colors"
+                className="p-2 hover:bg-accent rounded-md transition-colors"
               >
-                <Info className="w-5 h-5" />
+                <Info className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Image Info Overlay */}
-        <div className="absolute bottom-20 left-4">
-          <div className="glass-strong dark:glass-strong-dark rounded-xl p-4 text-white max-w-md">
-            <h2 className="text-lg font-semibold mb-1">{selectedImage.title}</h2>
-            <p className="text-sm text-white/80 mb-2">{selectedImage.shortNote}</p>
-            <div className="flex flex-wrap gap-1">
-              {selectedImage.tags.slice(0, 3).map((tag) => (
-                <span key={tag} className="px-2 py-1 bg-white/20 rounded-md text-xs">
-                  {tag}
-                </span>
-              ))}
-              {selectedImage.tags.length > 3 && (
-                <span className="px-2 py-1 bg-white/20 rounded-md text-xs">+{selectedImage.tags.length - 3} more</span>
-              )}
-            </div>
-          </div>
-        </div>
+
 
         {/* Recommendations */}
         <RecommendationsSection />
